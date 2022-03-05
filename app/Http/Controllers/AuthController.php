@@ -5,22 +5,24 @@ namespace App\Http\Controllers;
 use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
 
-    // // ログイン
+    // login
     public function login(Request $request)
     {
 
-        // 画面のログイン情報からユーザー情報を取得
+        // get User
         $user = User::where('login_id', '=', $request->input('loginId'))
             ->where('password', '=', $request->input('password'))
-            ->get();
+            ->first();
 
-        if(count($user) > 0){
-            return UserResource::collection($user);
+        if(!empty($user)){
+
+            $user->tokens()->where('name', "auth_$user->id")->delete();
+            $user->token = $user->createToken("auth_$user->id")->plainTextToken;
+            return UserResource::collection([$user]);
         }
         return null;
     }

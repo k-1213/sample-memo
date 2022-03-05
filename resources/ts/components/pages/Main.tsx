@@ -6,7 +6,6 @@ import { useOperateData } from '../../hooks/useOperateData';
 import { OpeListCard } from '../organisms/List/OpeListCard';
 import { DisplayTagListCard } from '../organisms/List/DisplayTagListCard';
 import { DisplayMemoListCard } from '../organisms/List/DisplayMemoListCard';
-import { useAuth } from '../../hooks/useAuth';
 import { CustomAlertDialog } from '../atoms/items/CustomAlertDialog';
 import { useAlertDialog } from "../../hooks/useAlertDialog";
 
@@ -32,7 +31,6 @@ export const Main: VFC = memo(() => {
         isMemoLoading,
         isOpeLoading
     } = useOperateData();
-    const { checkLogin } = useAuth();
     const { isOpen,
         onOpenDialog,
         onCloseDialog,
@@ -59,14 +57,14 @@ export const Main: VFC = memo(() => {
 
         if (isEdit) {
 
-            // 編集
+            // edit
             if (updateMemo(memo_id, content, newTagName, checkedTagItems)) {
 
                 selectMemo(memo_id);
                 selectTag(selectedTagId);
             }
         } else {
-            // 作成
+            // create
             insertMemo(content, newTagName, checkedTagItems);
         }
     }
@@ -78,7 +76,6 @@ export const Main: VFC = memo(() => {
     const onCloseDeleteDialog = (isYes: boolean) => {
         onCloseDialog(() => {
 
-            // Yesの場合は削除
             if (isYes) {
                 deleteMemo(selectedMemoId);
 
@@ -88,18 +85,14 @@ export const Main: VFC = memo(() => {
         });
     }
 
-    // 初回 or メモ作成完了
+    // init or created memo
     useEffect(() => {
 
-        if (checkLogin()) {
-
-            // 初期データ取得
-            getAllTags();
-            (selectedTagId === 0) ?
-                getAllMemos() :
-                selectTag(selectedTagId);
-        }
-
+        // initiate data
+        getAllTags();
+        (selectedTagId === 0) ?
+            getAllMemos() :
+            selectTag(selectedTagId);
     }, [created]);
 
     return (

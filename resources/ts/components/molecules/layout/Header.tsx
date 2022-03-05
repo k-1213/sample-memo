@@ -8,24 +8,15 @@ import { useAuth } from '../../../hooks/useAuth';
 export const Header: VFC = memo(() => {
 
     // hooks
-    const { logout, isLogin } = useAuth();
+    const { logout } = useAuth();
     const navigate = useNavigate();
 
     // context
     const { loginUser } = useContext(LoginUserContext);
 
-    // function
-    const onClickTitle = (e: any) => {
-        e.preventDefault();
-
-        (!isLogin()) ?
-            navigate('/') :
-            location.href = '/main';
-    };
-
     return (
         <Flex py={5} pl={2} bg='gray.50'>
-            <Box as="a" href="*" onClick={onClickTitle} _hover={{ opacity: 0.6 }}>
+            <Box as="a" href="*" onClick={() => navigate('/')} _hover={{ opacity: 0.6 }}>
                 <Heading size='md' pl={5} color='gray.800'>メモ管理アプリ</Heading>
             </Box>
             <Spacer />

@@ -18,7 +18,7 @@ class OpeController extends Controller
     {
 
         // ユーザーIDに紐づくメモ一覧の取得
-        $memos = Memo::where('user_id', '=', $request->input('user_id'))
+        $memos = Memo::where('user_id', '=', $request->user()->id)
             ->whereNull('deleted_at')
             ->orderBy('id', 'DESC')
             ->get();
@@ -34,7 +34,7 @@ class OpeController extends Controller
         $selected_memo_info = Memo::select('memos.*', 'memo_tags.tag_id')
             ->leftJoin('memo_tags', 'memos.id', '=', 'memo_tags.memo_id')
             ->where('memos.id', '=', $request->input('memo_id'))
-            ->where('memos.user_id', '=', $request->input('user_id'))
+            ->where('memos.user_id', '=', $request->user()->id)
             ->whereNull('memos.deleted_at')
             ->get();
 
@@ -46,7 +46,7 @@ class OpeController extends Controller
     {
 
         // ユーザーIDに紐づくタグ一覧の取得
-        $tags = Tag::where('user_id', '=', $request->input('user_id'))
+        $tags = Tag::where('user_id', '=', $request->user()->id)
             ->whereNull('deleted_at')
             ->orderBy('id', 'DESC')
             ->get();
@@ -61,7 +61,7 @@ class OpeController extends Controller
         // タグIDに紐づくメモ一覧の取得
         $memos = Memo::where('memo_tags.tag_id', '=', $request->input('tag_id'))
             ->leftJoin('memo_tags', 'memos.id', '=', 'memo_tags.memo_id')
-            ->where('memos.user_id', '=', $request->input('user_id'))
+            ->where('memos.user_id', '=', $request->user()->id)
             ->whereNull('memos.deleted_at')
             ->orderBy('memos.id', 'DESC')
             ->get();
@@ -83,7 +83,7 @@ class OpeController extends Controller
                 $memo_id = Memo::insertGetId(
                     [
                         'content' => $request['content'],
-                        'user_id' => $request['user_id']
+                        'user_id' => $request->user()->id
                     ]
                 );
             }
@@ -95,7 +95,7 @@ class OpeController extends Controller
                 $tag_id = Tag::insertGetId(
                     [
                         'name' => $request['newTagName'],
-                        'user_id' => $request['user_id']
+                        'user_id' => $request->user()->id
                     ]
                 );
 
@@ -153,7 +153,7 @@ class OpeController extends Controller
 
             // メモ更新
             Memo::where('id', '=', $request['memo_id'])
-                ->where('user_id', '=', $request['user_id'])
+                ->where('user_id', '=', $request->user()->id)
                 ->update(['content' => $request['content']]);
 
             // 新規タグ設定ありの場合
@@ -163,7 +163,7 @@ class OpeController extends Controller
                 $tag_id = Tag::insertGetId(
                     [
                         'name' => $request['newTagName'],
-                        'user_id' => $request['user_id']
+                        'user_id' => $request->user()->id
                     ]
                 );
 
@@ -194,7 +194,7 @@ class OpeController extends Controller
 
     // メモ更新
     Memo::where('id', '=', $request['memo_id'])
-    ->where('user_id', '=', $request['user_id'])
+    ->where('user_id', '=', $request->user()->id)
     ->update(['deleted_at' => date('Y-m-d H:i:s', time())]);
 
     return true;

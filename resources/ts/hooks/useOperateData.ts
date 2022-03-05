@@ -1,15 +1,13 @@
 import axios from "axios";
-import {  useState } from "react";
+import { useState } from "react";
 
 import { MemoType } from "../type/MemoType";
 import { TagType } from "../type/TagType";
 import { useMessage } from './useMessage';
 import { useAuth } from './useAuth';
+import { useAxios } from "./useAxios";
 
 export const useOperateData = () => {
-
-    // context
-    const { getUserId } = useAuth();
 
     // states
     const [tags, setTags] = useState<Array<TagType>>([]);
@@ -22,19 +20,21 @@ export const useOperateData = () => {
     const [isMemoLoading, setIsMemoLoading] = useState<boolean>(false);
     const [isOpeLoading, setIsOpeLoading] = useState<boolean>(false);
 
-    // hook
+    // hooks
     const { showMessage } = useMessage();
+    const { getToken } = useAuth();
+    const { axiosWithAuth } = useAxios();
+    // common header
+    axiosWithAuth(getToken());
 
     // functions
-    // メモ全件取得
+    // get all memos
     const getAllMemos = () => {
         setIsMemoLoading(true);
 
-        axios.get<{ data: Array<MemoType> }>(`/api/getmemos/?user_id=${getUserId()}`)
+        axios.get<{ data: Array<MemoType> }>('/api/getmemos')
             // success
-            .then((res) => {
-                setMemos(res.data.data);
-            })
+            .then((res) => setMemos(res.data.data))
             // fail
             .catch((e) => {
                 console.error(e);
@@ -42,15 +42,13 @@ export const useOperateData = () => {
                 setIsMemoLoading(false);
             });
     };
-    // タグ全件取得
+    // get all tags
     const getAllTags = () => {
         setIsTagLoading(true);
 
-        axios.get<{ data: Array<TagType> }>(`/api/gettags?user_id=${getUserId()}`)
+        axios.get<{ data: Array<TagType> }>('/api/gettags')
             // success
-            .then((res) => {
-                setTags(res.data.data);
-            })
+            .then((res) => setTags(res.data.data))
             // fail
             .catch((e) => {
                 console.error(e);
@@ -58,7 +56,7 @@ export const useOperateData = () => {
                 setIsTagLoading(false);
             });
     };
-    // メモ・タグ登録
+    // create
     const insertMemo = (
         content: string,
         newTagName: string,
@@ -77,8 +75,7 @@ export const useOperateData = () => {
         const data = {
             content,
             newTagName,
-            checkedTagItems,
-            user_id: getUserId()
+            checkedTagItems
         };
 
         axios.post('/api/create', data)
@@ -101,46 +98,7 @@ export const useOperateData = () => {
                 setIsOpeLoading(false);
             });
     };
-    //タグ選択
-    const selectTag = (tag_id: number) => {
-        setIsMemoLoading(true);
-
-        // タグの指定有無で場合分け
-        const url = (tag_id !== 0) ?
-            `/api/getMemosByTagId/?user_id=${getUserId() }&tag_id=${tag_id}` :
-            `/api/getmemos/?user_id=${getUserId()}`;
-        axios.get<{ data: Array<MemoType> }>(url)
-            // success
-            .then((res) => {
-                setSelectedTagId(tag_id);
-                setMemos(res.data.data);
-            })
-            // fail
-            .catch((e) => {
-                console.error(e);
-            }).finally(() => {
-                setIsMemoLoading(false);
-            });
-    };
-    //メモ選択
-    const selectMemo = (memo_id: number) => {
-        setIsOpeLoading(true);
-
-        // メモIdに紐づくタグ一覧の取得
-        axios.get<{ data: Array<MemoType> }>(`/api/getSelectedMemo/?user_id=${getUserId()}&memo_id=${memo_id}`)
-            // success
-            .then((res) => {
-                setSelectedMemoId(memo_id);
-                setSelectedMemoInfo(res.data.data);
-            })
-            // fail
-            .catch((e) => {
-                console.error(e);
-            }).finally(() => {
-                setIsOpeLoading(false);
-            });
-    };
-    // メモ更新
+    // update
     const updateMemo = (
         memo_id: number,
         content: string,
@@ -161,7 +119,6 @@ export const useOperateData = () => {
             content,
             newTagName,
             checkedTagItems,
-            user_id: getUserId(),
             memo_id
         };
 
@@ -187,7 +144,7 @@ export const useOperateData = () => {
 
         return true;
     }
-    // メモ削除
+    // destroy
     const deleteMemo = (memo_id: number) => {
 
         setCreated(false);
@@ -195,7 +152,6 @@ export const useOperateData = () => {
 
         // data
         const data = {
-            user_id: getUserId(),
             memo_id
         };
 
@@ -219,8 +175,46 @@ export const useOperateData = () => {
                 setIsOpeLoading(false);
             });
 
-    }
-    // メモ作成モードに切り替え
+    };
+    // select tag
+    const selectTag = (tag_id: number) => {
+        setIsMemoLoading(true);
+
+        // divide by cases
+        const url = (tag_id !== 0) ?
+            `/api/getMemosByTagId/?tag_id=${tag_id}` : '/api/getmemos';
+        axios.get<{ data: Array<MemoType> }>(url)
+            // success
+            .then((res) => {
+                setSelectedTagId(tag_id);
+                setMemos(res.data.data);
+            })
+            // fail
+            .catch((e) => {
+                console.error(e);
+            }).finally(() => {
+                setIsMemoLoading(false);
+            });
+    };
+    // select memo
+    const selectMemo = (memo_id: number) => {
+        setIsOpeLoading(true);
+
+        // get tag_list by memoId
+        axios.get<{ data: Array<MemoType> }>(`/api/getSelectedMemo/?memo_id=${memo_id}`)
+            // success
+            .then((res) => {
+                setSelectedMemoId(memo_id);
+                setSelectedMemoInfo(res.data.data);
+            })
+            // fail
+            .catch((e) => {
+                console.error(e);
+            }).finally(() => {
+                setIsOpeLoading(false);
+            });
+    };
+    // create mode
     const switchCreateMode = () => {
 
         setSelectedMemoInfo([]);

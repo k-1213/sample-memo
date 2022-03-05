@@ -15,7 +15,7 @@ export const useAuth = () => {
     const { loginUser, setLoginUser } = useContext(LoginUserContext);
 
     // functions
-    // ログイン
+    // login
     const login = (loginId: string, password: string) => {
         setLoading(true);
 
@@ -33,19 +33,18 @@ export const useAuth = () => {
 
                     // user
                     const user = res.data.data[0];
+
                     // store
                     setLoginUser(user);
-
-                    // とりあえずsessionStorageに保存
-                    // # TODO: 認証回り後でどうにかする
-                    sessionStorage.clear();
-                    sessionStorage['login_info'] = JSON.stringify(user);
+                    sessionStorage.removeItem('auth_token');
+                    sessionStorage['auth_token'] = JSON.stringify(user.token);
 
                     showMessage({ status: 'success', str: `ようこそ、${user.name}さん！` });
                     setLoading(false);
 
-                    // 遷移
                     navigate('main');
+
+                    // fail
                 } else {
                     setLoading(false);
 
@@ -59,58 +58,36 @@ export const useAuth = () => {
                 showMessage({ status: 'error', str: `ユーザーIDまたはパスワードが誤っています。` });
             })
     }
-    // ログアウト
+    // logout
     const logout = () => {
 
-        // ユーザー情報削除
+        // delete
         setLoginUser(null);
-        sessionStorage.clear();
+        sessionStorage.removeItem('auth_token');
 
         showMessage({ status: 'info', str: `ログアウトしました。` });
         navigate('/');
         return false;
     }
-    // ログインチェック
-    const checkLogin = () => {
+    // get token
+    const getToken = () => {
 
-        if (!isLogin()) {
-            navigate('/');
-            return false;
-        }
-        return true;
-    }
-    // ログイン有無チェック
-    const isLogin = () => {
-
-        // context
         if (loginUser) {
-            return true;
+            return loginUser.token;
         } else {
-            // contextから取得不可の場合はsessionStrageから取得
-            const userState = sessionStorage.getItem('login_info');
-            if (userState) {
-                setLoginUser(JSON.parse(userState));
-                return true;
+            const tokenState = sessionStorage.getItem('auth_token');
+            if (tokenState) {
+                return JSON.parse(tokenState);
             }
         }
-        return false;
-    }
-    // ユーザーId取得
-    const getUserId = () => {
 
-        if (loginUser) {
-            return loginUser.id;
-        } else {
-            return (JSON.parse(sessionStorage.getItem('login_info') !)).id;
-        }
+        return '';
     }
 
     return {
         login,
         logout,
         loading,
-        checkLogin,
-        isLogin,
-        getUserId
+        getToken
     };
 }

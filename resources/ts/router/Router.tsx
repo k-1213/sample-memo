@@ -3,7 +3,8 @@ import { Route, Routes } from "react-router-dom"
 
 import { Main } from '../components/pages/Main'
 import { Login } from '../components/pages/Login'
-import { DefaultTemplete } from '../components/templetes/DefaultTemplete'
+import { PrivateRouteWrapper } from './PrivateRouteWrapper'
+import { PublicRouteWrapper } from './PublicRouteWrapper'
 
 export const Router: VFC = () => {
     return (
@@ -12,23 +13,23 @@ export const Router: VFC = () => {
                 <Route
                     path="/"
                     element={
-                        <DefaultTemplete>
+                        <PublicRouteWrapper>
                             <Login />
-                        </DefaultTemplete>
+                        </PublicRouteWrapper>
                     } />
                 <Route
                     path="/main"
                     element={
-                        <DefaultTemplete>
+                        <PrivateRouteWrapper>
                             <Main />
-                        </DefaultTemplete>
+                        </PrivateRouteWrapper>
                     } />
                 <Route
                     path="*"
                     element={
-                        <DefaultTemplete>
+                        <PublicRouteWrapper>
                             <Login />
-                        </DefaultTemplete>
+                        </PublicRouteWrapper>
                     } />
             </Routes>
         </>

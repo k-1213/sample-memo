@@ -33,7 +33,7 @@ export const Login: VFC = () => {
                     <Text fontWeight='bold' align='center' w='100%'>メモ管理アプリ</Text>
                 </Title>
                 <Box p={2}>
-                    <Stack as='div' align='center' spacing={3} px={4} pt={5} pb={2}>
+                    <Stack as='form' align='center' spacing={3} px={4} pt={5} pb={2}>
                         <Input
                             w='xs'
                             placeholder="ユーザーID"
