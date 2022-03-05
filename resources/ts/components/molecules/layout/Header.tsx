@@ -15,7 +15,7 @@ export const Header: VFC = memo(() => {
     const { loginUser } = useContext(LoginUserContext);
 
     return (
-        <Flex py={5} pl={2} bg='gray.50'>
+        <Flex py={5} pl={2} bg='gray.50' boxShadow='md'>
             <Box as="a" href="*" onClick={() => navigate('/')} _hover={{ opacity: 0.6 }}>
                 <Heading size='md' pl={5} color='gray.800'>メモ管理アプリ</Heading>
             </Box>
