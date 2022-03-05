@@ -1,7 +1,9 @@
-import { Box, Button, Flex, Input, Stack, Text } from '@chakra-ui/react';
+import { Box, Button, Flex, Image, Input, Stack, Text } from '@chakra-ui/react';
 import React, { useState, VFC, useEffect } from "react";
 import { useAuth } from '../../hooks/useAuth';
 import { Title } from '../atoms/card/Title';
+import Logo from './img/logo.png';
+import styled from '@emotion/styled'
 
 export const Login: VFC = () => {
 
@@ -17,6 +19,16 @@ export const Login: VFC = () => {
     const onChangeInputUserId = (e: any) => setInputLoginId(e.target.value);
     const onChangeInputPassword = (e: any) => setInputPassword(e.target.value);
 
+    // css
+    const EImage = styled(Image)`
+    animation:2s linear infinite rotate_animation;
+
+    @keyframes rotate_animation{
+        0%{ transform:rotateY(0);}
+        100%{ transform:rotateY(360deg); }
+    }
+    `;
+
     // サンプルのため初期値設定
     useEffect(() => {
         setInputLoginId('test01');
@@ -30,7 +42,12 @@ export const Login: VFC = () => {
             h='calc(100vh - (64px + 43px + 5px))'>
             <Box border='1px' borderColor='gray.200' borderRadius='md'>
                 <Title>
-                    <Text fontWeight='bold' align='center' w='100%'>メモ管理アプリ</Text>
+                    <Flex align='center' justify='center' w='100%'>
+                        <EImage src={Logo} alt='logo' boxSize='30px' mr={1} />
+                        <Text fontWeight='bold'>
+                            メモ管理アプリ
+                        </Text>
+                    </Flex>
                 </Title>
                 <Box p={2}>
                     <Stack as='form' align='center' spacing={3} px={4} pt={5} pb={2}>
